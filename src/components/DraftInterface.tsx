@@ -257,13 +257,6 @@ const DraftInterface: React.FC = () => {
     }, 500); // Match the animation duration
   };
 
-  const handleLandCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCount = parseInt(e.target.value);
-    if (!isNaN(newCount) && newCount >= 0 && newCount <= 100) {
-      dispatch({ type: 'SET_DESIRED_LAND_COUNT', payload: newCount });
-    }
-  };
-
   if (!state.isCommanderSelected || state.draftComplete) {
     return null;
   }
@@ -282,23 +275,6 @@ const DraftInterface: React.FC = () => {
           <div className={`text-sm ${isDeckFull ? 'text-red-400' : 'text-gray-300'}`}>
             Cards in deck: {deckSize} / 100
             {isDeckFull && <span className="ml-2">(Deck Full!)</span>}
-          </div>
-          <div className="flex items-center space-x-2">
-            <label htmlFor="landCount" className="text-sm text-gray-300">
-              Lands:
-            </label>
-            <input
-              type="number"
-              id="landCount"
-              min="0"
-              max="100"
-              value={state.desiredLandCount}
-              onChange={handleLandCountChange}
-              className="w-16 px-2 py-1 bg-gray-700 text-white rounded border border-gray-600 focus:outline-none focus:border-blue-500"
-            />
-            <span className="text-sm text-gray-400">
-              ({currentLands}/{state.desiredLandCount})
-            </span>
           </div>
         </div>
       </div>

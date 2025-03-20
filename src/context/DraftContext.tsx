@@ -6,7 +6,6 @@ interface DraftState {
   deck: Card[];
   rerollsRemaining: number;
   isCommanderSelected: boolean;
-  desiredLandCount: number;
   currentPick: Card[];
   draftComplete: boolean;
   availableCards: Card[];
@@ -18,7 +17,6 @@ type DraftAction =
   | { type: 'REROLL_COMMANDER' }
   | { type: 'ADD_CARD'; payload: Card }
   | { type: 'REMOVE_CARD'; payload: string }
-  | { type: 'SET_DESIRED_LAND_COUNT'; payload: number }
   | { type: 'SET_CURRENT_PICK'; payload: Card[] }
   | { type: 'COMPLETE_DRAFT' }
   | { type: 'SET_AVAILABLE_CARDS'; payload: Card[] }
@@ -29,7 +27,6 @@ const initialState: DraftState = {
   deck: [],
   rerollsRemaining: 2,
   isCommanderSelected: false,
-  desiredLandCount: 37,
   currentPick: [],
   draftComplete: false,
   availableCards: [],
@@ -63,11 +60,6 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         deck: state.deck.filter(card => card.id !== action.payload),
-      };
-    case 'SET_DESIRED_LAND_COUNT':
-      return {
-        ...state,
-        desiredLandCount: action.payload,
       };
     case 'SET_CURRENT_PICK':
       return {
