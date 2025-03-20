@@ -10,6 +10,7 @@ interface DraftState {
   currentPick: Card[];
   draftComplete: boolean;
   availableCards: Card[];
+  landModalShown: boolean;
 }
 
 type DraftAction =
@@ -20,7 +21,8 @@ type DraftAction =
   | { type: 'SET_DESIRED_LAND_COUNT'; payload: number }
   | { type: 'SET_CURRENT_PICK'; payload: Card[] }
   | { type: 'COMPLETE_DRAFT' }
-  | { type: 'SET_AVAILABLE_CARDS'; payload: Card[] };
+  | { type: 'SET_AVAILABLE_CARDS'; payload: Card[] }
+  | { type: 'SET_LAND_MODAL_SHOWN'; payload: boolean };
 
 const initialState: DraftState = {
   commander: null,
@@ -31,6 +33,7 @@ const initialState: DraftState = {
   currentPick: [],
   draftComplete: false,
   availableCards: [],
+  landModalShown: false,
 };
 
 const DraftContext = createContext<{
@@ -80,6 +83,11 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         availableCards: action.payload,
+      };
+    case 'SET_LAND_MODAL_SHOWN':
+      return {
+        ...state,
+        landModalShown: action.payload,
       };
     default:
       return state;

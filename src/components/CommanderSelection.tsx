@@ -7,26 +7,21 @@ import axios from 'axios';
 const CommanderSelection: React.FC = () => {
   const { state, dispatch } = useDraft();
   const [commanders, setCommanders] = useState<Card[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchCommanders = async () => {
     try {
-      const response = await axios.get(
-        'https://api.scryfall.com/cards/search',
-        {
+      // Make 5 parallel requests to get random commanders
+      const requests = Array(5).fill(null).map(() =>
+        axios.get('https://api.scryfall.com/cards/random', {
           params: {
             q: 'is:commander legal:commander',
-            unique: 'cards',
-            page: 1,
-            page_size: 100, // Get a larger pool of commanders
           },
-        }
+        })
       );
 
-      // Randomize the commanders array
-      const allCommanders = response.data.data;
-      const shuffled = [...allCommanders].sort(() => Math.random() - 0.5);
-      const commanderData = shuffled.slice(0, 5);
+      const responses = await Promise.all(requests);
+      const commanderData = responses.map(response => response.data);
       setCommanders(commanderData);
     } catch (error) {
       console.error('Error fetching commanders:', error);
@@ -59,8 +54,8 @@ const CommanderSelection: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-center">Select Your Commander</h2>
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Select Your Commander</h2>
         {state.rerollsRemaining > 0 && (
           <button
             onClick={handleReroll}
@@ -70,11 +65,15 @@ const CommanderSelection: React.FC = () => {
           </button>
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-full text-center">Loading commanders...</div>
-        ) : (
-          commanders.map((commander) => (
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center space-y-4 py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="text-gray-300">Finding legendary commanders...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {commanders.map((commander) => (
             <motion.div
               key={commander.id}
               initial={{ scale: 0.8, opacity: 0 }}
@@ -93,12 +92,15 @@ const CommanderSelection: React.FC = () => {
                   <h3 className="text-white text-sm font-semibold text-center">
                     {commander.name}
                   </h3>
+                  <div className="text-xs text-gray-300 text-center">
+                    {commander.mana_cost} • {commander.type_line}
+                  </div>
                 </div>
               </div>
             </motion.div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

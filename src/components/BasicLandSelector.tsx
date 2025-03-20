@@ -139,14 +139,30 @@ const ConfirmationDialog: React.FC<{ card: Card; onConfirm: () => void; onCancel
   );
 };
 
-const BasicLandSelector: React.FC = () => {
+interface BasicLandSelectorProps {
+  showModal?: boolean;
+  onClose?: () => void;
+}
+
+const BasicLandSelector: React.FC<BasicLandSelectorProps> = ({ showModal = false, onClose }) => {
   const { state, dispatch } = useDraft();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(showModal);
   const [basicLands, setBasicLands] = useState<Card[]>([]);
   const [loading, setLoading] = useState(false);
   const [cardToRemove, setCardToRemove] = useState<Card | null>(null);
   const [showSplitAnimation, setShowSplitAnimation] = useState(false);
   const [selectedLand, setSelectedLand] = useState<Card | null>(null);
+
+  // Update isOpen when showModal prop changes
+  useEffect(() => {
+    setIsOpen(showModal);
+  }, [showModal]);
+
+  // Call onClose when modal is closed
+  const handleClose = () => {
+    setIsOpen(false);
+    onClose?.();
+  };
 
   const getLandCount = (landName: string) => {
     return state.deck.filter(card => card?.name === landName).length;
@@ -242,12 +258,7 @@ const BasicLandSelector: React.FC = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        disabled={isDeckFull && removableCards.length === 0}
-        className={`px-4 py-2 rounded transition-colors ${
-          isDeckFull && removableCards.length === 0
-            ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-            : 'bg-green-600 text-white hover:bg-green-700'
-        }`}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
       >
         Add Basic Lands
       </button>
@@ -258,8 +269,8 @@ const BasicLandSelector: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={handleClose}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -271,7 +282,7 @@ const BasicLandSelector: React.FC = () => {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Add Basic Lands</h2>
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleClose}
                   className="text-gray-400 hover:text-white"
                 >
                   ✕

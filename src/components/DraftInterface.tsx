@@ -33,6 +33,15 @@ const DraftInterface: React.FC = () => {
   const { state, dispatch } = useDraft();
   const [loading, setLoading] = useState(false);
   const [currentPick, setCurrentPick] = useState<Card[]>([]);
+  const [showLandModal, setShowLandModal] = useState(false);
+
+  // Show land modal on initial mount
+  useEffect(() => {
+    if (state.isCommanderSelected && !state.landModalShown) {
+      setShowLandModal(true);
+      dispatch({ type: 'SET_LAND_MODAL_SHOWN', payload: true });
+    }
+  }, [state.isCommanderSelected, state.landModalShown, dispatch]);
 
   // Fetch all available cards when commander is selected
   useEffect(() => {
@@ -44,19 +53,49 @@ const DraftInterface: React.FC = () => {
         const colorIdentity = state.commander?.color_identity.join('');
         const query = `color<=${colorIdentity} -is:commander -is:land legal:commander`;
         
-        const response = await axios.get(
+        // First, get the total number of cards
+        const initialResponse = await axios.get(
           'https://api.scryfall.com/cards/search',
           {
             params: {
               q: query,
               unique: 'cards',
+              order: 'released',
               page: 1,
-              page_size: 1000, // Increased to get more cards
+              page_size: 1,
             },
           }
         );
 
-        dispatch({ type: 'SET_AVAILABLE_CARDS', payload: response.data.data });
+        const totalCards = initialResponse.data.total_cards;
+        const totalPages = Math.ceil(totalCards / 175); // Scryfall's max page size is 175
+
+        // Randomly select 3 pages
+        const selectedPages = new Set<number>();
+        while (selectedPages.size < 3) {
+          selectedPages.add(Math.floor(Math.random() * totalPages) + 1);
+        }
+
+        // Fetch cards from selected pages
+        const pagePromises = Array.from(selectedPages).map(page =>
+          axios.get('https://api.scryfall.com/cards/search', {
+            params: {
+              q: query,
+              unique: 'cards',
+              order: 'released',
+              page,
+              page_size: 175,
+            },
+          })
+        );
+
+        const pageResponses = await Promise.all(pagePromises);
+        const allCards = pageResponses.flatMap(response => response.data.data);
+
+        // Shuffle the combined results
+        const shuffledCards = allCards.sort(() => Math.random() - 0.5);
+        
+        dispatch({ type: 'SET_AVAILABLE_CARDS', payload: shuffledCards });
       } catch (error) {
         console.error('Error fetching available cards:', error);
       } finally {
@@ -222,27 +261,12 @@ const DraftInterface: React.FC = () => {
   const deckSize = state.deck.length;
   const isDeckFull = deckSize >= 99; // 99 + commander = 100
 
-  // Show loading state when initially fetching cards
-  if (state.availableCards.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Loading Your Draft</h2>
-        </div>
-        <div className="flex flex-col items-center justify-center space-y-4 py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="text-gray-300">Fetching available cards for your commander...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Current Pick</h2>
         <div className="flex items-center space-x-4">
-          <BasicLandSelector />
+          <BasicLandSelector showModal={showLandModal} onClose={() => setShowLandModal(false)} />
           <div className={`text-sm ${isDeckFull ? 'text-red-400' : 'text-gray-300'}`}>
             Cards in deck: {deckSize} / 100
             {isDeckFull && <span className="ml-2">(Deck Full!)</span>}
@@ -268,8 +292,11 @@ const DraftInterface: React.FC = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-full text-center">Loading cards...</div>
+        {loading || state.availableCards.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center space-y-4 py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <p className="text-gray-300">Fetching available cards for your commander...</p>
+          </div>
         ) : isDeckFull ? (
           <div className="col-span-full text-center text-red-400">
             Your deck is full! You cannot add any more cards.
