@@ -11,6 +11,7 @@ interface DraftState {
   availableCards: Card[];
   landModalShown: boolean;
   showEDHRECRank: boolean;
+  showDebugInfo: boolean;
 }
 
 type DraftAction =
@@ -22,7 +23,8 @@ type DraftAction =
   | { type: 'COMPLETE_DRAFT' }
   | { type: 'SET_AVAILABLE_CARDS'; payload: Card[] }
   | { type: 'SET_LAND_MODAL_SHOWN'; payload: boolean }
-  | { type: 'TOGGLE_EDHREC_RANK' };
+  | { type: 'TOGGLE_EDHREC_RANK' }
+  | { type: 'TOGGLE_DEBUG_INFO' };
 
 const initialState: DraftState = {
   commander: null,
@@ -34,6 +36,7 @@ const initialState: DraftState = {
   availableCards: [],
   landModalShown: false,
   showEDHRECRank: false,
+  showDebugInfo: false,
 };
 
 const DraftContext = createContext<{
@@ -89,6 +92,11 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         showEDHRECRank: !state.showEDHRECRank,
+      };
+    case 'TOGGLE_DEBUG_INFO':
+      return {
+        ...state,
+        showDebugInfo: !state.showDebugInfo,
       };
     default:
       return state;

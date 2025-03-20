@@ -56,6 +56,11 @@ const CardComponent: React.FC<CardComponentProps> = ({
   const hoverScale = RARITY_SCALE[rarity as keyof typeof RARITY_SCALE] || RARITY_SCALE.common;
   const hoverRotate = RARITY_ROTATE[rarity as keyof typeof RARITY_ROTATE] || RARITY_ROTATE.common;
 
+  const handleDebugClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the card selection
+    window.open(card.uri, '_blank');
+  };
+
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
@@ -213,6 +218,30 @@ const CardComponent: React.FC<CardComponentProps> = ({
           >
             #{card.edhrec_rank.toLocaleString()}
           </motion.div>
+        )}
+
+        {state.showDebugInfo && (
+          <motion.button
+            className="absolute -right-3 top-1/2 px-2 py-1 rounded-full text-[10px] font-bold z-10 bg-gradient-to-r from-orange-500/30 to-red-500/30 backdrop-blur-md border border-orange-300/30 text-white/90 transform -translate-y-1/2"
+            style={{
+              boxShadow: '0 4px 6px -1px rgba(249, 115, 22, 0.2), 0 2px 4px -2px rgba(239, 68, 68, 0.1)',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+              backdropFilter: 'blur(8px)',
+            }}
+            onClick={handleDebugClick}
+            initial={{ opacity: 0, x: -5 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -5 }}
+            whileHover={{
+              scale: 1.1,
+              transition: {
+                duration: 0.2,
+                ease: "easeOut"
+              }
+            }}
+          >
+            🔗
+          </motion.button>
         )}
       </motion.div>
     </motion.div>

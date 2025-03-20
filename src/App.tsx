@@ -18,6 +18,9 @@ const AppContent = () => {
       if (newTypedKeys.includes('edhrank')) {
         dispatch({ type: 'TOGGLE_EDHREC_RANK' });
         setTypedKeys(''); // Reset the typed keys
+      } else if (newTypedKeys.includes('debug')) {
+        dispatch({ type: 'TOGGLE_DEBUG_INFO' });
+        setTypedKeys(''); // Reset the typed keys
       }
     };
 

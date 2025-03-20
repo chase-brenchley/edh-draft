@@ -1,6 +1,7 @@
 export interface Card {
   id: string;
   name: string;
+  uri: string;
   image_uris?: {
     small: string;
     normal: string;
