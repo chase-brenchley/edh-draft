@@ -9,33 +9,33 @@ const CommanderSelection: React.FC = () => {
   const [commanders, setCommanders] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchCommanders = async () => {
+    try {
+      const response = await axios.get(
+        'https://api.scryfall.com/cards/search',
+        {
+          params: {
+            q: 'is:commander legal:commander',
+            unique: 'cards',
+            page: 1,
+            page_size: 100, // Get a larger pool of commanders
+          },
+        }
+      );
+
+      // Randomize the commanders array
+      const allCommanders = response.data.data;
+      const shuffled = [...allCommanders].sort(() => Math.random() - 0.5);
+      const commanderData = shuffled.slice(0, 5);
+      setCommanders(commanderData);
+    } catch (error) {
+      console.error('Error fetching commanders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCommanders = async () => {
-      try {
-        const response = await axios.get(
-          'https://api.scryfall.com/cards/search',
-          {
-            params: {
-              q: 'is:commander legal:commander',
-              unique: 'cards',
-              page: 1,
-              page_size: 100, // Get a larger pool of commanders
-            },
-          }
-        );
-
-        // Randomize the commanders array
-        const allCommanders = response.data.data;
-        const shuffled = [...allCommanders].sort(() => Math.random() - 0.5);
-        const commanderData = shuffled.slice(0, 5);
-        setCommanders(commanderData);
-      } catch (error) {
-        console.error('Error fetching commanders:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (!state.isCommanderSelected) {
       fetchCommanders();
     }
@@ -49,6 +49,7 @@ const CommanderSelection: React.FC = () => {
     if (state.rerollsRemaining > 0) {
       dispatch({ type: 'REROLL_COMMANDER' });
       setLoading(true);
+      fetchCommanders();
     }
   };
 
