@@ -2,6 +2,7 @@
   "name": "edh-draft",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://chase-brenchley.github.io/edh-draft",
   "dependencies": {
     "@types/node": "^16.18.0",
     "@types/react": "^18.2.0",
@@ -16,7 +17,12 @@
     "framer-motion": "^10.16.0",
     "axios": "^1.6.0"
   },
+  "devDependencies": {
+    "gh-pages": "^6.1.1"
+  },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
