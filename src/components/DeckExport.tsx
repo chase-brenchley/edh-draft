@@ -26,17 +26,17 @@ const DeckExport: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Deck Export</h2>
+        <h2 className="text-2xl font-bold text-white/90">Deck Export</h2>
         <button
           onClick={handleCopy}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+          className="btn-glass-green"
         >
           Copy Decklist
         </button>
       </div>
       
-      <div className="bg-gray-800 p-4 rounded-lg">
-        <pre className="text-sm text-gray-300 whitespace-pre-wrap">
+      <div className="bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20">
+        <pre className="text-sm text-white/70 whitespace-pre-wrap">
           {generateDecklist()}
         </pre>
       </div>

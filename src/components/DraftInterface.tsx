@@ -269,10 +269,10 @@ const DraftInterface: React.FC = () => {
     <div className="space-y-6">
       <CommanderDisplay />
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Current Pick</h2>
+        <h2 className="text-2xl font-bold text-white/90">Current Pick</h2>
         <div className="flex items-center space-x-4">
           <BasicLandSelector showModal={showLandModal} onClose={() => setShowLandModal(false)} />
-          <div className={`text-sm ${isDeckFull ? 'text-red-400' : 'text-gray-300'}`}>
+          <div className={`text-sm ${isDeckFull ? 'text-red-400' : 'text-white/70'}`}>
             Cards in deck: {deckSize} / 100
             {isDeckFull && <span className="ml-2">(Deck Full!)</span>}
           </div>
@@ -283,14 +283,14 @@ const DraftInterface: React.FC = () => {
         {loading || state.availableCards.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center space-y-4 py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            <p className="text-gray-300">Fetching available cards for your commander...</p>
+            <p className="text-white/70">Fetching available cards for your commander...</p>
           </div>
         ) : error ? (
           <div className="col-span-full flex flex-col items-center justify-center space-y-4 py-12">
-            <div className="text-red-400 text-center max-w-md">
+            <div className="text-red-400 text-center max-w-md bg-white/10 backdrop-blur-md p-6 rounded-lg border border-white/20">
               <p className="mb-4">{error}</p>
-              <p className="text-sm text-gray-400 mb-4">Please try the following:</p>
-              <ul className="text-sm text-gray-400 list-disc list-inside space-y-2">
+              <p className="text-sm text-white/70 mb-4">Please try the following:</p>
+              <ul className="text-sm text-white/70 list-disc list-inside space-y-2">
                 <li>Check your internet connection</li>
                 <li>Wait a few moments and try again</li>
                 <li>If the problem persists, try refreshing the page</li>
@@ -301,14 +301,14 @@ const DraftInterface: React.FC = () => {
                   setLoading(true);
                   fetchNextPick();
                 }}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                className="btn-glass-blue"
               >
                 Try Again
               </button>
             </div>
           </div>
         ) : isDeckFull ? (
-          <div className="col-span-full text-center text-red-400">
+          <div className="col-span-full text-center text-red-400 bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20">
             Your deck is full! You cannot add any more cards.
           </div>
         ) : (

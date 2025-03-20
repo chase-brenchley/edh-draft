@@ -59,11 +59,11 @@ const CommanderSelection: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Select Your Commander</h2>
+        <h2 className="text-2xl font-bold text-white/90">Select Your Commander</h2>
         {state.rerollsRemaining > 0 && (
           <button
             onClick={handleReroll}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="btn-glass-blue"
           >
             Reroll ({state.rerollsRemaining} remaining)
           </button>
@@ -73,21 +73,21 @@ const CommanderSelection: React.FC = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center space-y-4 py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="text-gray-300">Finding legendary commanders...</p>
+          <p className="text-white/70">Finding legendary commanders...</p>
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center space-y-4 py-12">
-          <div className="text-red-400 text-center max-w-md">
+          <div className="text-red-400 text-center max-w-md bg-white/10 backdrop-blur-md p-6 rounded-lg border border-white/20">
             <p className="mb-4">{error}</p>
-            <p className="text-sm text-gray-400 mb-4">Please try the following:</p>
-            <ul className="text-sm text-gray-400 list-disc list-inside space-y-2">
+            <p className="text-sm text-white/70 mb-4">Please try the following:</p>
+            <ul className="text-sm text-white/70 list-disc list-inside space-y-2">
               <li>Check your internet connection</li>
               <li>Wait a few moments and try again</li>
               <li>If the problem persists, try refreshing the page</li>
             </ul>
             <button
               onClick={fetchCommanders}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              className="btn-glass-blue"
             >
               Try Again
             </button>

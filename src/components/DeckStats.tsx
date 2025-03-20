@@ -59,32 +59,32 @@ const DeckStats: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-md border-t border-white/20">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Deck Overview Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+            className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
           >
             <h3 className="text-base font-bold mb-3 text-blue-400">Overview</h3>
             <div className="space-y-2">
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-300">Cards:</span>
-                  <span className="text-white font-semibold">{deck.length}/100</span>
+                  <span className="text-white/70">Cards:</span>
+                  <span className="text-white/90 font-semibold">{deck.length}/100</span>
                 </div>
-                <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                    className="h-full bg-blue-500/80 rounded-full transition-all duration-300"
                     style={{ width: `${((deck.length + 1) / 100) * 100}%` }}
                   />
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-300">Avg CMC:</span>
-                <span className="text-white font-semibold">{averageCMC.toFixed(2)}</span>
+                <span className="text-white/70">Avg CMC:</span>
+                <span className="text-white/90 font-semibold">{averageCMC.toFixed(2)}</span>
               </div>
             </div>
           </motion.div>
@@ -94,7 +94,7 @@ const DeckStats: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+            className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
           >
             <h3 className="text-base font-bold mb-3 text-green-400">Mana Curve</h3>
             <div className="space-y-2">
@@ -102,14 +102,14 @@ const DeckStats: React.FC = () => {
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([cmc, count]) => (
                   <div key={cmc} className="flex items-center space-x-2">
-                    <span className="text-gray-300 w-6">{cmc}</span>
-                    <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <span className="text-white/70 w-6">{cmc}</span>
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-green-500 rounded-full"
+                        className="h-full bg-green-500/80 rounded-full"
                         style={{ width: `${(count / deck.length) * 100}%` }}
                       />
                     </div>
-                    <span className="text-white w-6 text-right">{count}</span>
+                    <span className="text-white/90 w-6 text-right">{count}</span>
                   </div>
                 ))}
             </div>
@@ -120,7 +120,7 @@ const DeckStats: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+            className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
           >
             <h3 className="text-base font-bold mb-3 text-purple-400">Colors</h3>
             <div className="space-y-2">
@@ -128,17 +128,17 @@ const DeckStats: React.FC = () => {
                 .sort(([, a], [, b]) => b - a)
                 .map(([color, count]) => (
                   <div key={color} className="flex items-center space-x-2">
-                    <span className="text-gray-300 w-6">{colorMap[color]?.symbol || color}</span>
-                    <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <span className="text-white/70 w-6">{colorMap[color]?.symbol || color}</span>
+                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{
                           width: `${(count / deck.length) * 100}%`,
-                          backgroundColor: colorMap[color]?.color || '#gray',
+                          backgroundColor: `${colorMap[color]?.color}80`,
                         }}
                       />
                     </div>
-                    <span className="text-white w-6 text-right">{count}</span>
+                    <span className="text-white/90 w-6 text-right">{count}</span>
                   </div>
                 ))}
             </div>
@@ -149,7 +149,7 @@ const DeckStats: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+            className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
           >
             <h3 className="text-base font-bold mb-3 text-yellow-400">Types</h3>
             <div className="space-y-2">
@@ -157,14 +157,14 @@ const DeckStats: React.FC = () => {
                 .sort(([, a], [, b]) => b - a)
                 .map(([type, count]) => (
                   <div key={type} className="flex items-center space-x-2">
-                    <span className="text-gray-300 flex-1 truncate">{type}</span>
-                    <div className="w-12 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                    <span className="text-white/70 flex-1 truncate">{type}</span>
+                    <div className="w-12 h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-yellow-500 rounded-full"
+                        className="h-full bg-yellow-500/80 rounded-full"
                         style={{ width: `${(count / deck.length) * 100}%` }}
                       />
                     </div>
-                    <span className="text-white w-6 text-right">{count}</span>
+                    <span className="text-white/90 w-6 text-right">{count}</span>
                   </div>
                 ))}
             </div>

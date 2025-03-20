@@ -123,13 +123,13 @@ const ConfirmationDialog: React.FC<{ card: Card; onConfirm: () => void; onCancel
         <div className="flex justify-end space-x-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+            className="btn-glass"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            className="btn-glass-red"
           >
             Confirm
           </button>
@@ -258,7 +258,7 @@ const BasicLandSelector: React.FC<BasicLandSelectorProps> = ({ showModal = false
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        className="btn-glass-blue"
       >
         Add Basic Lands
       </button>
@@ -269,34 +269,34 @@ const BasicLandSelector: React.FC<BasicLandSelectorProps> = ({ showModal = false
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
             onClick={handleClose}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-gray-800 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white/10 backdrop-blur-md rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/20"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Add Basic Lands</h2>
+                <h2 className="text-2xl font-bold text-white/90">Add Basic Lands</h2>
                 <button
                   onClick={handleClose}
-                  className="text-gray-400 hover:text-white"
+                  className="text-white/70 hover:text-white/90"
                 >
                   ✕
                 </button>
               </div>
 
               {isDeckFull && (
-                <div className="mb-4 p-4 bg-yellow-900/50 text-yellow-400 rounded-lg">
+                <div className="mb-4 p-4 bg-yellow-500/20 text-yellow-400 rounded-lg border border-yellow-500/30">
                   Your deck is full! A random non-land card will be removed to make room for basic lands.
                 </div>
               )}
 
               {loading ? (
-                <div className="text-center">Loading basic lands...</div>
+                <div className="text-center text-white/70">Loading basic lands...</div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {basicLands.map((land) => (
@@ -308,16 +308,16 @@ const BasicLandSelector: React.FC<BasicLandSelectorProps> = ({ showModal = false
                       className={`cursor-pointer ${isDeckFull && !selectedLand ? 'opacity-50' : ''}`}
                       onClick={() => handleAddLand(land)}
                     >
-                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
+                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg bg-white/5">
                         <img
                           src={land.image_uris?.normal || land.image_uris?.small}
                           alt={land.name}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                        <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold backdrop-blur-sm">
                           {getLandCount(land.name)}
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 backdrop-blur-sm">
                           <h3 className="text-white text-sm font-semibold text-center">
                             {land.name}
                           </h3>
