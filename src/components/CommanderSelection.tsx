@@ -8,9 +8,11 @@ const CommanderSelection: React.FC = () => {
   const { state, dispatch } = useDraft();
   const [commanders, setCommanders] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchCommanders = async () => {
     try {
+      setError(null);
       // Make 5 parallel requests to get random commanders
       const requests = Array(5).fill(null).map(() =>
         axios.get('https://api.scryfall.com/cards/random', {
@@ -25,6 +27,7 @@ const CommanderSelection: React.FC = () => {
       setCommanders(commanderData);
     } catch (error) {
       console.error('Error fetching commanders:', error);
+      setError('Failed to fetch commanders. This might be due to network issues or Scryfall being temporarily unavailable.');
     } finally {
       setLoading(false);
     }
@@ -44,6 +47,7 @@ const CommanderSelection: React.FC = () => {
     if (state.rerollsRemaining > 0) {
       dispatch({ type: 'REROLL_COMMANDER' });
       setLoading(true);
+      setError(null);
       fetchCommanders();
     }
   };
@@ -70,6 +74,24 @@ const CommanderSelection: React.FC = () => {
         <div className="flex flex-col items-center justify-center space-y-4 py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           <p className="text-gray-300">Finding legendary commanders...</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center space-y-4 py-12">
+          <div className="text-red-400 text-center max-w-md">
+            <p className="mb-4">{error}</p>
+            <p className="text-sm text-gray-400 mb-4">Please try the following:</p>
+            <ul className="text-sm text-gray-400 list-disc list-inside space-y-2">
+              <li>Check your internet connection</li>
+              <li>Wait a few moments and try again</li>
+              <li>If the problem persists, try refreshing the page</li>
+            </ul>
+            <button
+              onClick={fetchCommanders}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">

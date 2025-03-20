@@ -36,6 +36,7 @@ const DraftInterface: React.FC = () => {
   const [currentPick, setCurrentPick] = useState<Card[]>([]);
   const [showLandModal, setShowLandModal] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Show land modal on initial mount
   useEffect(() => {
@@ -51,6 +52,7 @@ const DraftInterface: React.FC = () => {
       if (!state.isCommanderSelected || state.availableCards.length > 0) return;
 
       setLoading(true);
+      setError(null);
       try {
         const colorIdentity = state.commander?.color_identity.join('');
         const query = `color<=${colorIdentity} -is:commander -is:land legal:commander`;
@@ -100,6 +102,7 @@ const DraftInterface: React.FC = () => {
         dispatch({ type: 'SET_AVAILABLE_CARDS', payload: shuffledCards });
       } catch (error) {
         console.error('Error fetching available cards:', error);
+        setError('Failed to fetch available cards. This might be due to network issues or Scryfall being temporarily unavailable.');
       } finally {
         setLoading(false);
       }
@@ -303,6 +306,28 @@ const DraftInterface: React.FC = () => {
           <div className="col-span-full flex flex-col items-center justify-center space-y-4 py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             <p className="text-gray-300">Fetching available cards for your commander...</p>
+          </div>
+        ) : error ? (
+          <div className="col-span-full flex flex-col items-center justify-center space-y-4 py-12">
+            <div className="text-red-400 text-center max-w-md">
+              <p className="mb-4">{error}</p>
+              <p className="text-sm text-gray-400 mb-4">Please try the following:</p>
+              <ul className="text-sm text-gray-400 list-disc list-inside space-y-2">
+                <li>Check your internet connection</li>
+                <li>Wait a few moments and try again</li>
+                <li>If the problem persists, try refreshing the page</li>
+              </ul>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  fetchNextPick();
+                }}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         ) : isDeckFull ? (
           <div className="col-span-full text-center text-red-400">
