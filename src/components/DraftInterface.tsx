@@ -199,6 +199,10 @@ const DraftInterface: React.FC = () => {
   }, [currentPick.length, fetchNextPick]);
 
   const handleCardSelect = (card: Card) => {
+    const newDeckSize = state.deck.length + 1; // +1 for the new card
+    if (newDeckSize >= 100) {
+      return; // Don't add the card if it would exceed 100
+    }
     dispatch({ type: 'ADD_CARD', payload: card });
     setCurrentPick([]); // Clear current pick to trigger fetching new cards
   };
@@ -215,6 +219,8 @@ const DraftInterface: React.FC = () => {
   }
 
   const currentLands = state.deck.filter(card => card.is_land).length;
+  const deckSize = state.deck.length;
+  const isDeckFull = deckSize >= 99; // 99 + commander = 100
 
   return (
     <div className="space-y-6">
@@ -222,8 +228,9 @@ const DraftInterface: React.FC = () => {
         <h2 className="text-2xl font-bold">Current Pick</h2>
         <div className="flex items-center space-x-4">
           <BasicLandSelector />
-          <div className="text-sm text-gray-300">
-            Cards in deck: {state.deck.length}
+          <div className={`text-sm ${isDeckFull ? 'text-red-400' : 'text-gray-300'}`}>
+            Cards in deck: {deckSize} / 100
+            {isDeckFull && <span className="ml-2">(Deck Full!)</span>}
           </div>
           <div className="flex items-center space-x-2">
             <label htmlFor="landCount" className="text-sm text-gray-300">
@@ -248,6 +255,10 @@ const DraftInterface: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
           <div className="col-span-full text-center">Loading cards...</div>
+        ) : isDeckFull ? (
+          <div className="col-span-full text-center text-red-400">
+            Your deck is full! You cannot add any more cards.
+          </div>
         ) : (
           currentPick.map((card) => (
             <motion.div

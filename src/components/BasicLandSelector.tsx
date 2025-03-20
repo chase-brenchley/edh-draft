@@ -14,6 +14,8 @@ const BasicLandSelector: React.FC = () => {
     return state.deck.filter(card => card?.name === landName).length;
   };
 
+  const isDeckFull = state.deck.length >= 99; // 99 + commander = 100
+
   useEffect(() => {
     const fetchBasicLands = async () => {
       setLoading(true);
@@ -58,6 +60,7 @@ const BasicLandSelector: React.FC = () => {
   }, [isOpen, state.commander]);
 
   const handleAddLand = (land: Card) => {
+    if (isDeckFull) return;
     dispatch({ type: 'ADD_CARD', payload: land });
   };
 
@@ -69,7 +72,12 @@ const BasicLandSelector: React.FC = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+        disabled={isDeckFull}
+        className={`px-4 py-2 rounded transition-colors ${
+          isDeckFull 
+            ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+            : 'bg-green-600 text-white hover:bg-green-700'
+        }`}
       >
         Add Basic Lands
       </button>
@@ -100,6 +108,12 @@ const BasicLandSelector: React.FC = () => {
                 </button>
               </div>
 
+              {isDeckFull && (
+                <div className="mb-4 p-4 bg-red-900/50 text-red-400 rounded-lg">
+                  Your deck is full! You cannot add any more cards, including basic lands.
+                </div>
+              )}
+
               {loading ? (
                 <div className="text-center">Loading basic lands...</div>
               ) : (
@@ -109,9 +123,9 @@ const BasicLandSelector: React.FC = () => {
                       key={land.id}
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      whileHover={{ scale: 1.05 }}
-                      className="cursor-pointer"
-                      onClick={() => handleAddLand(land)}
+                      whileHover={{ scale: isDeckFull ? 1 : 1.05 }}
+                      className={`cursor-pointer ${isDeckFull ? 'opacity-50' : ''}`}
+                      onClick={() => !isDeckFull && handleAddLand(land)}
                     >
                       <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
                         <img
