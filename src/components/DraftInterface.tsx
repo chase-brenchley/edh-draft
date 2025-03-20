@@ -222,6 +222,21 @@ const DraftInterface: React.FC = () => {
   const deckSize = state.deck.length;
   const isDeckFull = deckSize >= 99; // 99 + commander = 100
 
+  // Show loading state when initially fetching cards
+  if (state.availableCards.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Loading Your Draft</h2>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-4 py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="text-gray-300">Fetching available cards for your commander...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
