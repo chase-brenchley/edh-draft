@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/edh-draft/static/css/main.22f0f6c4.css",
+    "main.js": "/edh-draft/static/js/main.f546f486.js",
+    "index.html": "/edh-draft/index.html",
+    "main.22f0f6c4.css.map": "/edh-draft/static/css/main.22f0f6c4.css.map",
+    "main.f546f486.js.map": "/edh-draft/static/js/main.f546f486.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.22f0f6c4.css",
+    "static/js/main.f546f486.js"
+  ]
+}
