@@ -34,6 +34,39 @@ const DraftInterface: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [currentPick, setCurrentPick] = useState<Card[]>([]);
 
+  // Fetch all available cards when commander is selected
+  useEffect(() => {
+    const fetchAvailableCards = async () => {
+      if (!state.isCommanderSelected || state.availableCards.length > 0) return;
+
+      setLoading(true);
+      try {
+        const colorIdentity = state.commander?.color_identity.join('');
+        const query = `color<=${colorIdentity} -is:commander -is:land legal:commander`;
+        
+        const response = await axios.get(
+          'https://api.scryfall.com/cards/search',
+          {
+            params: {
+              q: query,
+              unique: 'cards',
+              page: 1,
+              page_size: 1000, // Increased to get more cards
+            },
+          }
+        );
+
+        dispatch({ type: 'SET_AVAILABLE_CARDS', payload: response.data.data });
+      } catch (error) {
+        console.error('Error fetching available cards:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAvailableCards();
+  }, [state.isCommanderSelected, state.commander, state.availableCards.length, dispatch]);
+
   // Calculate current deck's rarity distribution
   const calculateCurrentRarityDistribution = useCallback(() => {
     const deck = state.deck;
@@ -77,13 +110,16 @@ const DraftInterface: React.FC = () => {
     return boosts;
   }, [calculateCurrentRarityDistribution]);
 
-  // Balance the card pool based on rarity
+  // Modified balanceCardPool to work with the cached pool
   const balanceCardPool = useCallback((cards: Card[]) => {
     const boosts = calculateRarityBoosts();
     const totalBoost = Object.values(boosts).reduce((a, b) => a + b, 0);
 
-    // If no boosts needed, return original cards
-    if (totalBoost === 0) return cards;
+    // If no boosts needed, return random cards from the pool
+    if (totalBoost === 0) {
+      const shuffled = [...cards].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 5);
+    }
 
     // Sort cards by rarity priority (higher boost = higher priority)
     const sortedCards = [...cards].sort((a, b) => {
@@ -105,12 +141,14 @@ const DraftInterface: React.FC = () => {
 
     // First pass: prioritize underrepresented rarities
     sortedCards.forEach(card => {
+      if (balancedCards.length >= 5) return;
+      
       const rarity = card.rarity.toLowerCase();
       const boost = boosts[rarity];
       
       if (boost > 0) {
         // Add more cards from underrepresented rarities
-        const targetCount = Math.ceil((boost / totalBoost) * 5); // 5 is our target pool size
+        const targetCount = Math.ceil((boost / totalBoost) * 5);
         if (rarityCounts[rarity] < targetCount) {
           balancedCards.push(card);
           rarityCounts[rarity]++;
@@ -120,54 +158,39 @@ const DraftInterface: React.FC = () => {
 
     // Second pass: fill remaining slots with any cards
     sortedCards.forEach(card => {
-      if (balancedCards.length < 5) {
-        const rarity = card.rarity.toLowerCase();
-        if (!balancedCards.some(c => c.id === card.id)) {
-          balancedCards.push(card);
-          rarityCounts[rarity]++;
-        }
+      if (balancedCards.length >= 5) return;
+      
+      if (!balancedCards.some(c => c.id === card.id)) {
+        balancedCards.push(card);
+        rarityCounts[card.rarity.toLowerCase()]++;
       }
     });
 
-    return balancedCards;
+    // Ensure we have exactly 5 cards
+    return balancedCards.slice(0, 5);
   }, [calculateRarityBoosts]);
 
-  const fetchNextPick = useCallback(async () => {
+  // Modified fetchNextPick to use the cached pool
+  const fetchNextPick = useCallback(() => {
     if (!state.isCommanderSelected || state.draftComplete) return;
 
     setLoading(true);
     try {
-      const colorIdentity = state.commander?.color_identity.join('');
-      const query = `color<=${colorIdentity} -is:commander -is:land legal:commander`;
-      
-      const response = await axios.get(
-        'https://api.scryfall.com/cards/search',
-        {
-          params: {
-            q: query,
-            unique: 'cards',
-            page: 1,
-            page_size: 100,
-          },
-        }
+      // Filter out cards that are already in the deck
+      const availableCards = state.availableCards.filter(
+        card => !state.deck.some(deckCard => deckCard.id === card.id)
       );
 
-      // Get all cards and balance them based on rarity
-      const allCards = response.data.data;
-      const balancedCards = balanceCardPool(allCards);
-      
-      // Randomize the balanced cards
-      const shuffled = [...balancedCards].sort(() => Math.random() - 0.5);
-      const cards = shuffled.slice(0, 5);
-      
-      setCurrentPick(cards);
-      dispatch({ type: 'SET_CURRENT_PICK', payload: cards });
+      // Balance and select cards from the filtered pool
+      const balancedCards = balanceCardPool(availableCards);
+      setCurrentPick(balancedCards);
+      dispatch({ type: 'SET_CURRENT_PICK', payload: balancedCards });
     } catch (error) {
-      console.error('Error fetching cards:', error);
+      console.error('Error selecting next pick:', error);
     } finally {
       setLoading(false);
     }
-  }, [state.isCommanderSelected, state.draftComplete, state.commander, dispatch, balanceCardPool]);
+  }, [state.isCommanderSelected, state.draftComplete, state.availableCards, state.deck, dispatch, balanceCardPool]);
 
   useEffect(() => {
     if (currentPick.length === 0) {
