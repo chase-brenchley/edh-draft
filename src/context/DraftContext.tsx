@@ -16,6 +16,7 @@ type DraftAction =
   | { type: 'SELECT_COMMANDER'; payload: Card }
   | { type: 'REROLL_COMMANDER' }
   | { type: 'ADD_CARD'; payload: Card }
+  | { type: 'REMOVE_CARD'; payload: string }
   | { type: 'SET_DESIRED_LAND_COUNT'; payload: number }
   | { type: 'SET_CURRENT_PICK'; payload: Card[] }
   | { type: 'COMPLETE_DRAFT' }
@@ -54,6 +55,11 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         deck: [...state.deck, action.payload],
+      };
+    case 'REMOVE_CARD':
+      return {
+        ...state,
+        deck: state.deck.filter(card => card.id !== action.payload),
       };
     case 'SET_DESIRED_LAND_COUNT':
       return {
