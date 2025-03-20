@@ -1,15 +1,3 @@
 node_modules
-build/apple-touch-icon.png
-build/asset-manifest.json
-build/commander-crown.svg
-build/favicon-16x16.png
-build/favicon-32x32.png
-build/favicon.ico
-build/index.html
-build/manifest.json
-build/static/css/main.22f0f6c4.css
-build/static/css/main.22f0f6c4.css.map
-build/static/js/main.f546f486.js
-build/static/js/main.f546f486.js.LICENSE.txt
-build/static/js/main.f546f486.js.map
+build/
 .DS_Store

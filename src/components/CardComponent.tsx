@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '../types/card';
+import { useDraft } from '../context/DraftContext';
 
 // Rarity colors for borders
 const RARITY_COLORS = {
@@ -48,6 +49,7 @@ const CardComponent: React.FC<CardComponentProps> = ({
   isSelected = false 
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { state } = useDraft();
   const rarity = card.rarity?.toLowerCase() || 'common';
   const borderColor = RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] || RARITY_COLORS.common;
   const glowEffect = RARITY_GLOW[rarity as keyof typeof RARITY_GLOW] || RARITY_GLOW.common;
@@ -148,6 +150,11 @@ const CardComponent: React.FC<CardComponentProps> = ({
                         Loyalty: {card.loyalty}
                       </p>
                     )}
+                    {state.showEDHRECRank && card.edhrec_rank && (
+                      <p className="text-white/90 text-sm mt-2 tracking-tight">
+                        EDHREC Rank: #{card.edhrec_rank.toLocaleString()}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -184,6 +191,29 @@ const CardComponent: React.FC<CardComponentProps> = ({
         >
           {card.rarity?.toUpperCase()}
         </motion.div>
+        {state.showEDHRECRank && card.edhrec_rank && (
+          <motion.div 
+            className="absolute -top-3 left-1/2 px-2 py-1 rounded-full text-[10px] font-bold z-10 bg-gradient-to-r from-cyan-500/30 to-teal-500/30 backdrop-blur-md border border-cyan-300/30 text-white/90"
+            style={{
+              boxShadow: '0 4px 6px -1px rgba(6, 182, 212, 0.2), 0 2px 4px -2px rgba(20, 184, 166, 0.1)',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+              backdropFilter: 'blur(8px)',
+            }}
+            layout
+            initial={{ x: '-50%', opacity: 0, y: -5 }}
+            animate={{ x: '-50%', opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            whileHover={{
+              scale: isSelected ? 1 : 1.1,
+              transition: {
+                duration: 0.2,
+                ease: "easeOut"
+              }
+            }}
+          >
+            #{card.edhrec_rank.toLocaleString()}
+          </motion.div>
+        )}
       </motion.div>
     </motion.div>
   );

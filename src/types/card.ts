@@ -31,4 +31,5 @@ export interface Card {
   prices: {
     [key: string]: string | null;
   };
+  edhrec_rank?: number;
 } 
