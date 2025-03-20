@@ -80,7 +80,7 @@ const CardComponent: React.FC<CardComponentProps> = ({
       onClick={onClick}
     >
       <motion.div 
-        className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg"
+        className="relative aspect-[2/3] rounded-lg shadow-lg"
         style={{
           border: `2px solid ${borderColor}`,
           boxShadow: glowEffect,
@@ -94,14 +94,39 @@ const CardComponent: React.FC<CardComponentProps> = ({
           }
         }}
       >
+        <div className="absolute inset-0 rounded-lg overflow-hidden">
+          <motion.img
+            src={card.image_uris?.normal || card.image_uris?.small}
+            alt={card.name}
+            className="w-full h-full object-cover"
+            whileHover={{
+              scale: isSelected ? 1 : 1.05,
+              transition: {
+                duration: 0.2,
+                ease: "easeOut"
+              }
+            }}
+          />
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
+          <h3 className="text-white text-sm font-semibold text-center">
+            {card.name}
+          </h3>
+          <div className="text-xs text-gray-300 text-center">
+            {card.mana_cost} • {card.type_line}
+          </div>
+        </div>
         <motion.div 
-          className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold z-10"
+          className="absolute -bottom-3 left-1/2 px-1.5 py-0.5 rounded-full text-[10px] font-bold z-10"
           style={{
             backgroundColor: borderColor,
             color: rarity === 'mythic' ? '#FFFFFF' : '#000000',
             boxShadow: `0 0 10px ${borderColor}`,
             textShadow: rarity === 'mythic' ? '0 0 5px rgba(0,0,0,0.5)' : 'none',
           }}
+          layout
+          initial={{ x: '-50%' }}
+          animate={{ x: '-50%' }}
           whileHover={{
             scale: isSelected ? 1 : 1.1,
             transition: {
@@ -112,26 +137,6 @@ const CardComponent: React.FC<CardComponentProps> = ({
         >
           {card.rarity?.toUpperCase()}
         </motion.div>
-        <motion.img
-          src={card.image_uris?.normal || card.image_uris?.small}
-          alt={card.name}
-          className="w-full h-full object-cover"
-          whileHover={{
-            scale: isSelected ? 1 : 1.05,
-            transition: {
-              duration: 0.2,
-              ease: "easeOut"
-            }
-          }}
-        />
-        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
-          <h3 className="text-white text-sm font-semibold text-center">
-            {card.name}
-          </h3>
-          <div className="text-xs text-gray-300 text-center">
-            {card.mana_cost} • {card.type_line}
-          </div>
-        </div>
       </motion.div>
     </motion.div>
   );
