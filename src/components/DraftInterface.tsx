@@ -21,6 +21,14 @@ const RARITY_COLORS = {
   mythic: '#F9A70B',
 };
 
+// Add rarity glow effects
+const RARITY_GLOW = {
+  common: '0 0 10px #C1C1C1',
+  uncommon: '0 0 10px #B3C4D3',
+  rare: '0 0 15px #F9D70B',
+  mythic: '0 0 20px #F9A70B',
+};
+
 const DraftInterface: React.FC = () => {
   const { state, dispatch } = useDraft();
   const [loading, setLoading] = useState(false);
@@ -231,8 +239,18 @@ const DraftInterface: React.FC = () => {
                 className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg"
                 style={{
                   border: `2px solid ${RARITY_COLORS[card.rarity.toLowerCase() as keyof typeof RARITY_COLORS]}`,
+                  boxShadow: RARITY_GLOW[card.rarity.toLowerCase() as keyof typeof RARITY_GLOW],
                 }}
               >
+                <div 
+                  className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold z-10"
+                  style={{
+                    backgroundColor: RARITY_COLORS[card.rarity.toLowerCase() as keyof typeof RARITY_COLORS],
+                    color: card.rarity.toLowerCase() === 'common' ? '#000000' : '#FFFFFF',
+                  }}
+                >
+                  {card.rarity.toUpperCase()}
+                </div>
                 <img
                   src={card.image_uris?.normal || card.image_uris?.small}
                   alt={card.name}
