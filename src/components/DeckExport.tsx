@@ -11,6 +11,7 @@ const DeckExport: React.FC = () => {
   const generateDecklist = () => {
     const commander = state.commander;
     const decklist = state.deck
+      .filter(card => card.id !== commander?.id)
       .map((card) => `1 ${card.name}`)
       .join('\n');
 

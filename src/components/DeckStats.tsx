@@ -73,7 +73,7 @@ const DeckStats: React.FC = () => {
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-300">Cards:</span>
-                  <span className="text-white font-semibold">{deck.length + 1}/100</span>
+                  <span className="text-white font-semibold">{deck.length}/100</span>
                 </div>
                 <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
                   <div

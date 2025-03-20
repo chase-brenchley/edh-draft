@@ -45,6 +45,7 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
         ...state,
         commander: action.payload,
         isCommanderSelected: true,
+        deck: [...state.deck, action.payload],
       };
     case 'REROLL_COMMANDER':
       return {
