@@ -5,6 +5,7 @@ import { Card } from '../types/card';
 import axios from 'axios';
 import BasicLandSelector from './BasicLandSelector';
 import CardComponent from './CardComponent';
+import CommanderDisplay from './CommanderDisplay';
 
 // Target rarity distribution (in percentages)
 const TARGET_RARITY_DISTRIBUTION = {
@@ -273,6 +274,7 @@ const DraftInterface: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <CommanderDisplay />
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Current Pick</h2>
         <div className="flex items-center space-x-4">

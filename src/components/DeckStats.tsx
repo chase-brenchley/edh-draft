@@ -1,191 +1,174 @@
 import React from 'react';
 import { useDraft } from '../context/DraftContext';
-import { Card } from '../types/card';
-
-const TARGET_RARITY_DISTRIBUTION = {
-  common: 40,
-  uncommon: 35,
-  rare: 20,
-  mythic: 5,
-};
-
-const RARITY_COLORS = {
-  common: '#C1C1C1',
-  uncommon: '#B3C4D3',
-  rare: '#F9D70B',
-  mythic: '#F9A70B',
-};
+import { motion } from 'framer-motion';
 
 const DeckStats: React.FC = () => {
   const { state } = useDraft();
+  const { deck } = state;
 
-  if (!state.isCommanderSelected) {
-    return null;
-  }
+  // Calculate mana curve
+  const manaCurve = deck.reduce((acc: Record<number, number>, card) => {
+    const cmc = card.cmc || 0;
+    acc[cmc] = (acc[cmc] || 0) + 1;
+    return acc;
+  }, {});
 
-  const calculateStats = () => {
-    const commander = state.commander;
-    const deck = [...state.deck, state.commander];
+  // Calculate color distribution
+  const colorDistribution = deck.reduce((acc: Record<string, number>, card) => {
+    if (card.color_identity) {
+      card.color_identity.forEach(color => {
+        acc[color] = (acc[color] || 0) + 1;
+      });
+    }
+    return acc;
+  }, {});
 
-    // Calculate card type counts
-    const creatures = deck.filter((card): card is Card => card !== null && card.type_line.toLowerCase().includes('creature')).length;
-    const lands = deck.filter((card): card is Card => 
-      card !== null && (
-        card.is_land || 
-        card.type_line.toLowerCase().includes('land')
-      )
-    ).length;
-    const artifacts = deck.filter((card): card is Card => card !== null && card.type_line.toLowerCase().includes('artifact')).length;
-    const enchantments = deck.filter((card): card is Card => card !== null && card.type_line.toLowerCase().includes('enchantment')).length;
-    const instants = deck.filter((card): card is Card => card !== null && card.type_line.toLowerCase().includes('instant')).length;
-    const sorceries = deck.filter((card): card is Card => card !== null && card.type_line.toLowerCase().includes('sorcery')).length;
-
-    // Calculate mana curve
-    const manaCurve = Array(7).fill(0);
-    deck.forEach(card => {
-      if (card && !card.is_land) {
-        const cmc = card.cmc;
-        if (cmc >= 7) {
-          manaCurve[6]++;
-        } else {
-          manaCurve[cmc]++;
-        }
-      }
+  // Calculate card type distribution
+  const typeDistribution = deck.reduce((acc: Record<string, number>, card) => {
+    const types = card.type_line?.split('—')[0].trim().split(' ') || [];
+    types.forEach(type => {
+      acc[type] = (acc[type] || 0) + 1;
     });
+    return acc;
+  }, {});
 
-    // Calculate rarity distribution
-    const rarityDistribution = {
-      common: 0,
-      uncommon: 0,
-      rare: 0,
-      mythic: 0,
-    };
+  // Calculate rarity distribution
+  const rarityDistribution = deck.reduce((acc: Record<string, number>, card) => {
+    acc[card.rarity] = (acc[card.rarity] || 0) + 1;
+    return acc;
+  }, {});
 
-    deck.forEach(card => {
-      if (card) {
-        const rarity = card.rarity.toLowerCase();
-        if (rarity in rarityDistribution) {
-          rarityDistribution[rarity as keyof typeof rarityDistribution]++;
-        }
-      }
-    });
+  // Calculate average CMC
+  const averageCMC = deck.reduce((acc, card) => acc + (card.cmc || 0), 0) / deck.length;
 
-    // Get color identity
-    const colors = commander?.color_identity || [];
-    const colorNames = {
-      W: 'White',
-      U: 'Blue',
-      B: 'Black',
-      R: 'Red',
-      G: 'Green',
-    };
-
-    return {
-      commander,
-      colors: colors.map(c => colorNames[c as keyof typeof colorNames]).join(' / '),
-      totalCards: deck.length,
-      creatures,
-      lands,
-      artifacts,
-      enchantments,
-      instants,
-      sorceries,
-      manaCurve,
-      rarityDistribution,
-    };
+  // Color mapping
+  const colorMap: Record<string, { color: string; symbol: string }> = {
+    W: { color: '#F9D70B', symbol: '⚪' },
+    U: { color: '#0E68AB', symbol: '🔵' },
+    B: { color: '#000000', symbol: '⚫' },
+    R: { color: '#D3202A', symbol: '🔴' },
+    G: { color: '#00733E', symbol: '🟢' },
   };
 
-  const stats = calculateStats();
+  // Rarity colors
+  const rarityColors: Record<string, string> = {
+    common: '#C1C1C1',
+    uncommon: '#B3C4D3',
+    rare: '#F9D70B',
+    mythic: '#F9A70B',
+  };
 
   return (
-    <div className="fixed right-0 top-0 h-full w-64 bg-gray-800 p-4 overflow-y-auto">
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-bold mb-2">Commander</h3>
-          <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
-            <img
-              src={stats.commander?.image_uris?.normal || stats.commander?.image_uris?.small}
-              alt={stats.commander?.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="text-sm text-gray-300 mt-2">{stats.commander?.name}</p>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold mb-2">Colors</h3>
-          <p className="text-gray-300">{stats.colors}</p>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold mb-2">Deck Size</h3>
-          <p className="text-gray-300">{stats.totalCards} / 100 cards</p>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold mb-2">Card Types</h3>
-          <div className="space-y-1 text-sm text-gray-300">
-            <p>Creatures: {stats.creatures}</p>
-            <p>Lands: {stats.lands}</p>
-            <p>Artifacts: {stats.artifacts}</p>
-            <p>Enchantments: {stats.enchantments}</p>
-            <p>Instants: {stats.instants}</p>
-            <p>Sorceries: {stats.sorceries}</p>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold mb-2">Rarity Distribution</h3>
-          <div className="space-y-2">
-            {Object.entries(stats.rarityDistribution).map(([rarity, count]) => {
-              const percentage = (count / stats.totalCards) * 100;
-              const targetPercentage = TARGET_RARITY_DISTRIBUTION[rarity as keyof typeof TARGET_RARITY_DISTRIBUTION];
-              const difference = targetPercentage - percentage;
-              
-              return (
-                <div key={rarity} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="capitalize" style={{ color: RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] }}>
-                      {rarity}
-                    </span>
-                    <span className="text-gray-300">
-                      {count} ({percentage.toFixed(1)}%)
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${percentage}%`,
-                        backgroundColor: RARITY_COLORS[rarity as keyof typeof RARITY_COLORS],
-                      }}
-                    />
-                  </div>
-                  {Math.abs(difference) > 5 && (
-                    <div className="text-xs text-gray-400">
-                      {difference > 0 ? 'Need more' : 'Need fewer'} {rarity} cards
-                    </div>
-                  )}
+    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Deck Overview Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+          >
+            <h3 className="text-base font-bold mb-3 text-blue-400">Overview</h3>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Cards:</span>
+                  <span className="text-white font-semibold">{deck.length + 1}/100</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-lg font-bold mb-2">Mana Curve</h3>
-          <div className="flex items-end h-32 space-x-1">
-            {stats.manaCurve.map((count, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center">
-                <div
-                  className="w-full bg-blue-500 rounded-t"
-                  style={{ height: `${(count / Math.max(...stats.manaCurve)) * 100}%` }}
-                />
-                <span className="text-xs text-gray-300 mt-1">{count}</span>
-                <span className="text-xs text-gray-400">{index}</span>
+                <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                    style={{ width: `${((deck.length + 1) / 100) * 100}%` }}
+                  />
+                </div>
               </div>
-            ))}
-          </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300">Avg CMC:</span>
+                <span className="text-white font-semibold">{averageCMC.toFixed(2)}</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Mana Curve Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+          >
+            <h3 className="text-base font-bold mb-3 text-green-400">Mana Curve</h3>
+            <div className="space-y-2">
+              {Object.entries(manaCurve)
+                .sort(([a], [b]) => Number(a) - Number(b))
+                .map(([cmc, count]) => (
+                  <div key={cmc} className="flex items-center space-x-2">
+                    <span className="text-gray-300 w-6">{cmc}</span>
+                    <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500 rounded-full"
+                        style={{ width: `${(count / deck.length) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-white w-6 text-right">{count}</span>
+                  </div>
+                ))}
+            </div>
+          </motion.div>
+
+          {/* Color Distribution Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+          >
+            <h3 className="text-base font-bold mb-3 text-purple-400">Colors</h3>
+            <div className="space-y-2">
+              {Object.entries(colorDistribution)
+                .sort(([, a], [, b]) => b - a)
+                .map(([color, count]) => (
+                  <div key={color} className="flex items-center space-x-2">
+                    <span className="text-gray-300 w-6">{colorMap[color]?.symbol || color}</span>
+                    <div className="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${(count / deck.length) * 100}%`,
+                          backgroundColor: colorMap[color]?.color || '#gray',
+                        }}
+                      />
+                    </div>
+                    <span className="text-white w-6 text-right">{count}</span>
+                  </div>
+                ))}
+            </div>
+          </motion.div>
+
+          {/* Card Types Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-gray-800 rounded-lg p-4 shadow-lg"
+          >
+            <h3 className="text-base font-bold mb-3 text-yellow-400">Types</h3>
+            <div className="space-y-2">
+              {Object.entries(typeDistribution)
+                .sort(([, a], [, b]) => b - a)
+                .map(([type, count]) => (
+                  <div key={type} className="flex items-center space-x-2">
+                    <span className="text-gray-300 flex-1 truncate">{type}</span>
+                    <div className="w-12 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-500 rounded-full"
+                        style={{ width: `${(count / deck.length) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-white w-6 text-right">{count}</span>
+                  </div>
+                ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
