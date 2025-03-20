@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#1A1B1E"/>
+  
+  <!-- Crown base -->
+  <path d="M96 320L160 192L256 288L352 192L416 320H96Z" fill="#F9D70B"/>
+  
+  <!-- Crown points -->
+  <path d="M160 192L192 128L256 192L320 128L352 192L256 288L160 192Z" fill="#F9A70B"/>
+  
+  <!-- Crown jewels -->
+  <circle cx="160" cy="192" r="24" fill="#B3C4D3"/>
+  <circle cx="256" cy="192" r="24" fill="#F9D70B"/>
+  <circle cx="352" cy="192" r="24" fill="#B3C4D3"/>
+  
+  <!-- Base shadow -->
+  <path d="M96 320H416L384 352H128L96 320Z" fill="#B3841B"/>
+</svg> 
