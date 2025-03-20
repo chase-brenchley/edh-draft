@@ -4,6 +4,7 @@ import { useDraft } from '../context/DraftContext';
 import { Card } from '../types/card';
 import axios from 'axios';
 import BasicLandSelector from './BasicLandSelector';
+import CardComponent from './CardComponent';
 
 // Target rarity distribution (in percentages)
 const TARGET_RARITY_DISTRIBUTION = {
@@ -303,45 +304,11 @@ const DraftInterface: React.FC = () => {
           </div>
         ) : (
           currentPick.map((card) => (
-            <motion.div
+            <CardComponent
               key={card.id}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              whileHover={{ scale: 1.05 }}
-              className="cursor-pointer"
+              card={card}
               onClick={() => handleCardSelect(card)}
-            >
-              <div 
-                className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg"
-                style={{
-                  border: `2px solid ${RARITY_COLORS[card.rarity.toLowerCase() as keyof typeof RARITY_COLORS]}`,
-                  boxShadow: RARITY_GLOW[card.rarity.toLowerCase() as keyof typeof RARITY_GLOW],
-                }}
-              >
-                <div 
-                  className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold z-10"
-                  style={{
-                    backgroundColor: RARITY_COLORS[card.rarity.toLowerCase() as keyof typeof RARITY_COLORS],
-                    color: card.rarity.toLowerCase() === 'common' ? '#000000' : '#FFFFFF',
-                  }}
-                >
-                  {card.rarity.toUpperCase()}
-                </div>
-                <img
-                  src={card.image_uris?.normal || card.image_uris?.small}
-                  alt={card.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
-                  <h3 className="text-white text-sm font-semibold text-center">
-                    {card.name}
-                  </h3>
-                  <div className="text-xs text-gray-300 text-center">
-                    {card.mana_cost} • {card.type_line}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            />
           ))
         )}
       </div>

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { useDraft } from '../context/DraftContext';
 import { Card } from '../types/card';
 import axios from 'axios';
+import CardComponent from './CardComponent';
 
 const CommanderSelection: React.FC = () => {
   const { state, dispatch } = useDraft();
   const [commanders, setCommanders] = useState<Card[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchCommanders = async () => {
     try {
@@ -74,30 +74,11 @@ const CommanderSelection: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {commanders.map((commander) => (
-            <motion.div
+            <CardComponent
               key={commander.id}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              whileHover={{ scale: 1.05 }}
-              className="cursor-pointer"
+              card={commander}
               onClick={() => handleCommanderSelect(commander)}
-            >
-              <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src={commander.image_uris?.normal || commander.image_uris?.small}
-                  alt={commander.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
-                  <h3 className="text-white text-sm font-semibold text-center">
-                    {commander.name}
-                  </h3>
-                  <div className="text-xs text-gray-300 text-center">
-                    {commander.mana_cost} • {commander.type_line}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            />
           ))}
         </div>
       )}
