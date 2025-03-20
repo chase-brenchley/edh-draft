@@ -188,9 +188,10 @@ const BasicLandSelector: React.FC<BasicLandSelectorProps> = ({ showModal = false
             case 'B': return 'Swamp';
             case 'R': return 'Mountain';
             case 'G': return 'Forest';
-            default: return '';
+            default: return 'Wastes';
           }
         }).filter(Boolean);
+        basicLandNames.push('Wastes');
 
         const query = basicLandNames.map(name => `!${name}`).join(' OR ');
         
