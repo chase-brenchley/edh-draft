@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '../types/card';
 
 // Rarity colors for borders
@@ -47,6 +47,7 @@ const CardComponent: React.FC<CardComponentProps> = ({
   className = '',
   isSelected = false 
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
   const rarity = card.rarity?.toLowerCase() || 'common';
   const borderColor = RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] || RARITY_COLORS.common;
   const glowEffect = RARITY_GLOW[rarity as keyof typeof RARITY_GLOW] || RARITY_GLOW.common;
@@ -78,6 +79,8 @@ const CardComponent: React.FC<CardComponentProps> = ({
       }}
       className={`cursor-pointer ${className}`}
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <motion.div 
         className="relative aspect-[2/3] rounded-lg shadow-lg"
@@ -108,7 +111,51 @@ const CardComponent: React.FC<CardComponentProps> = ({
             }}
           />
         </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
+
+        <AnimatePresence>
+          {isHovered && !isSelected && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 rounded-lg z-20"
+              style={{
+                boxShadow: `inset 0 0 20px ${borderColor}`,
+                border: `2px solid ${borderColor}`,
+              }}
+            >
+              {/* Blurred background layer */}
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg" />
+              
+              {/* Scrollable content container */}
+              <div className="absolute inset-0 overflow-y-auto">
+                {/* Sharp text content layer */}
+                <div className="relative z-30 p-4">
+                  <div className="space-y-2">
+                    <h3 className="text-white font-bold text-lg tracking-tight">{card.name}</h3>
+                    <p className="text-white/90 text-sm tracking-wide">{card.mana_cost}</p>
+                    <p className="text-white/90 text-sm font-semibold tracking-tight">{card.type_line}</p>
+                    <div className="border-t border-white/20 my-2"></div>
+                    <p className="text-white/90 text-sm tracking-tight leading-snug whitespace-pre-wrap" style={{ textRendering: 'geometricPrecision' }}>{card.oracle_text}</p>
+                    {(card.power || card.toughness) && (
+                      <p className="text-white/90 text-sm mt-2 tracking-tight">
+                        Power/Toughness: {card.power}/{card.toughness}
+                      </p>
+                    )}
+                    {card.loyalty && (
+                      <p className="text-white/90 text-sm mt-2 tracking-tight">
+                        Loyalty: {card.loyalty}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2 z-10">
           <h3 className="text-white text-sm font-semibold text-center">
             {card.name}
           </h3>
