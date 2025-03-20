@@ -26,36 +26,75 @@ const RARITY_SCALE = {
   mythic: 1.11,
 };
 
+// Rarity-based rotation for hover effect
+const RARITY_ROTATE = {
+  common: 0,
+  uncommon: 1,
+  rare: 2,
+  mythic: 3,
+};
+
 interface CardComponentProps {
   card: Card;
   onClick?: () => void;
   className?: string;
+  isSelected?: boolean;
 }
 
-const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, className = '' }) => {
+const CardComponent: React.FC<CardComponentProps> = ({ 
+  card, 
+  onClick, 
+  className = '',
+  isSelected = false 
+}) => {
   const rarity = card.rarity?.toLowerCase() || 'common';
   const borderColor = RARITY_COLORS[rarity as keyof typeof RARITY_COLORS] || RARITY_COLORS.common;
   const glowEffect = RARITY_GLOW[rarity as keyof typeof RARITY_GLOW] || RARITY_GLOW.common;
   const hoverScale = RARITY_SCALE[rarity as keyof typeof RARITY_SCALE] || RARITY_SCALE.common;
+  const hoverRotate = RARITY_ROTATE[rarity as keyof typeof RARITY_ROTATE] || RARITY_ROTATE.common;
 
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      whileHover={{ scale: hoverScale }}
-      transition={{ duration: 0.2 }}
+      animate={{ 
+        scale: isSelected ? 0.5 : 1,
+        opacity: isSelected ? 0 : 1,
+        x: isSelected ? '100vw' : 0,
+        y: isSelected ? '-50vh' : 0,
+        rotate: isSelected ? 360 : 0,
+      }}
+      whileHover={{ 
+        scale: isSelected ? 0.5 : hoverScale,
+        rotate: isSelected ? 360 : hoverRotate,
+        y: isSelected ? '-50vh' : -10,
+        transition: {
+          duration: 0.2,
+          ease: "easeOut"
+        }
+      }}
+      transition={{ 
+        duration: isSelected ? 0.5 : 0.2,
+        ease: isSelected ? "easeIn" : "easeOut"
+      }}
       className={`cursor-pointer ${className}`}
       onClick={onClick}
     >
-      <div 
+      <motion.div 
         className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-lg"
         style={{
           border: `2px solid ${borderColor}`,
           boxShadow: glowEffect,
           transform: `translateZ(0)`, // Force GPU acceleration
         }}
+        whileHover={{
+          boxShadow: isSelected ? glowEffect : `${glowEffect}, 0 0 30px ${borderColor}`,
+          transition: {
+            duration: 0.2,
+            ease: "easeOut"
+          }
+        }}
       >
-        <div 
+        <motion.div 
           className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold z-10"
           style={{
             backgroundColor: borderColor,
@@ -63,13 +102,27 @@ const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, className 
             boxShadow: `0 0 10px ${borderColor}`,
             textShadow: rarity === 'mythic' ? '0 0 5px rgba(0,0,0,0.5)' : 'none',
           }}
+          whileHover={{
+            scale: isSelected ? 1 : 1.1,
+            transition: {
+              duration: 0.2,
+              ease: "easeOut"
+            }
+          }}
         >
           {card.rarity?.toUpperCase()}
-        </div>
-        <img
+        </motion.div>
+        <motion.img
           src={card.image_uris?.normal || card.image_uris?.small}
           alt={card.name}
           className="w-full h-full object-cover"
+          whileHover={{
+            scale: isSelected ? 1 : 1.05,
+            transition: {
+              duration: 0.2,
+              ease: "easeOut"
+            }
+          }}
         />
         <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
           <h3 className="text-white text-sm font-semibold text-center">
@@ -79,7 +132,7 @@ const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, className 
             {card.mana_cost} • {card.type_line}
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

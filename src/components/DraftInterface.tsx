@@ -35,6 +35,7 @@ const DraftInterface: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [currentPick, setCurrentPick] = useState<Card[]>([]);
   const [showLandModal, setShowLandModal] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
   // Show land modal on initial mount
   useEffect(() => {
@@ -243,8 +244,13 @@ const DraftInterface: React.FC = () => {
     if (newDeckSize >= 100) {
       return; // Don't add the card if it would exceed 100
     }
-    dispatch({ type: 'ADD_CARD', payload: card });
-    setCurrentPick([]); // Clear current pick to trigger fetching new cards
+    setSelectedCardId(card.id);
+    // Wait for animation to complete before adding to deck
+    setTimeout(() => {
+      dispatch({ type: 'ADD_CARD', payload: card });
+      setCurrentPick([]); // Clear current pick to trigger fetching new cards
+      setSelectedCardId(null);
+    }, 500); // Match the animation duration
   };
 
   const handleLandCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -308,6 +314,7 @@ const DraftInterface: React.FC = () => {
               key={card.id}
               card={card}
               onClick={() => handleCardSelect(card)}
+              isSelected={selectedCardId === card.id}
             />
           ))
         )}
