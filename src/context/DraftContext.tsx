@@ -12,6 +12,10 @@ interface DraftState {
   landModalShown: boolean;
   showEDHRECRank: boolean;
   showDebugInfo: boolean;
+  tribalSynergies: {
+    [subtype: string]: Card[];
+  };
+  presentedCards: string[];
 }
 
 type DraftAction =
@@ -24,7 +28,8 @@ type DraftAction =
   | { type: 'SET_AVAILABLE_CARDS'; payload: Card[] }
   | { type: 'SET_LAND_MODAL_SHOWN'; payload: boolean }
   | { type: 'TOGGLE_EDHREC_RANK' }
-  | { type: 'TOGGLE_DEBUG_INFO' };
+  | { type: 'TOGGLE_DEBUG_INFO' }
+  | { type: 'ADD_TRIBAL_SYNERGY'; payload: { subtype: string; cards: Card[] } };
 
 const initialState: DraftState = {
   commander: null,
@@ -37,6 +42,8 @@ const initialState: DraftState = {
   landModalShown: false,
   showEDHRECRank: false,
   showDebugInfo: false,
+  tribalSynergies: {},
+  presentedCards: [],
 };
 
 const DraftContext = createContext<{
@@ -72,6 +79,7 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         currentPick: action.payload,
+        presentedCards: [...state.presentedCards, ...action.payload.map(card => card.id)]
       };
     case 'COMPLETE_DRAFT':
       return {
@@ -97,6 +105,14 @@ function draftReducer(state: DraftState, action: DraftAction): DraftState {
       return {
         ...state,
         showDebugInfo: !state.showDebugInfo,
+      };
+    case 'ADD_TRIBAL_SYNERGY':
+      return {
+        ...state,
+        tribalSynergies: {
+          ...state.tribalSynergies,
+          [action.payload.subtype]: action.payload.cards,
+        },
       };
     default:
       return state;

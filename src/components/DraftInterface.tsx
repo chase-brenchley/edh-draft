@@ -155,18 +155,78 @@ const DraftInterface: React.FC = () => {
     return boosts;
   }, [calculateCurrentRarityDistribution]);
 
-  // Modified balanceCardPool to work with the cached pool
+  // Calculate subtype distribution and check for new tribal synergies
+  const checkForTribalSynergies = useCallback(async () => {
+    const deck = state.deck;
+    const subtypeDistribution = deck.reduce((acc: Record<string, number>, card) => {
+      const parts = card.type_line?.split('—') || [];
+      if (parts.length > 1) {
+        const subtypes = parts[1].trim().split(' ');
+        subtypes.forEach(subtype => {
+          acc[subtype] = (acc[subtype] || 0) + 1;
+        });
+      }
+      return acc;
+    }, {});
+
+    // Check for new tribal synergies (subtypes with > 2 cards)
+    for (const [subtype, count] of Object.entries(subtypeDistribution)) {
+      if (count > 2 && !state.tribalSynergies[subtype]) {
+        try {
+          const colorIdentity = state.commander?.color_identity.join('');
+          const query = `t:${subtype} color<=${colorIdentity} -is:commander -is:land legal:commander`;
+          
+          const response = await axios.get('https://api.scryfall.com/cards/search', {
+            params: {
+              q: query,
+              unique: 'cards',
+              order: 'edhrec',
+              page: 1,
+              page_size: 20,
+            },
+          });
+
+          const tribalCards = response.data.data.filter((card: Card) => 
+            !deck.some(deckCard => deckCard.id === card.id)
+          );
+
+          if (tribalCards.length > 0) {
+            dispatch({ 
+              type: 'ADD_TRIBAL_SYNERGY', 
+              payload: { 
+                subtype,
+                cards: tribalCards
+              }
+            });
+          }
+        } catch (error) {
+          console.error(`Error fetching ${subtype} tribal cards:`, error);
+        }
+      }
+    }
+  }, [state.deck, state.commander?.color_identity, state.tribalSynergies, dispatch]);
+
+  // Modified balanceCardPool to include tribal synergy cards
   const balanceCardPool = useCallback((cards: Card[]) => {
     const boosts = calculateRarityBoosts();
     const totalBoost = Object.values(boosts).reduce((a, b) => a + b, 0);
 
-    // If no boosts needed, return random cards from the pool
-    if (totalBoost === 0) {
-      const shuffled = [...cards].sort(() => Math.random() - 0.5);
-      return shuffled.slice(0, 5);
-    }
+    // Get one random tribal synergy card for each active tribe
+    const tribalCards: Card[] = [];
+    Object.entries(state.tribalSynergies).forEach(([subtype, synergycards]) => {
+      const availableSynergyCards = synergycards.filter(card => 
+        !state.deck.some(deckCard => deckCard.id === card.id)
+      );
+      if (availableSynergyCards.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableSynergyCards.length);
+        tribalCards.push(availableSynergyCards[randomIndex]);
+      }
+    });
 
-    // Sort cards by rarity priority (higher boost = higher priority)
+    // If we have tribal cards, include one and reduce the number of other cards accordingly
+    const regularPickSize = 5;
+
+    // Sort regular cards by rarity priority
     const sortedCards = [...cards].sort((a, b) => {
       const rarityA = a.rarity.toLowerCase();
       const rarityB = b.rarity.toLowerCase();
@@ -176,7 +236,7 @@ const DraftInterface: React.FC = () => {
     });
 
     // Take more cards from underrepresented rarities
-    const balancedCards: Card[] = [];
+    const balancedCards: Card[] = [...tribalCards];
     const rarityCounts: Record<string, number> = {
       common: 0,
       uncommon: 0,
@@ -186,15 +246,14 @@ const DraftInterface: React.FC = () => {
 
     // First pass: prioritize underrepresented rarities
     sortedCards.forEach(card => {
-      if (balancedCards.length >= 5) return;
+      if (balancedCards.length >= regularPickSize) return;
       
       const rarity = card.rarity.toLowerCase();
       const boost = boosts[rarity];
       
       if (boost > 0) {
-        // Add more cards from underrepresented rarities
-        const targetCount = Math.ceil((boost / totalBoost) * 5);
-        if (rarityCounts[rarity] < targetCount) {
+        const targetCount = Math.ceil((boost / totalBoost) * regularPickSize);
+        if (rarityCounts[rarity] < targetCount && !balancedCards.some(c => c.id === card.id)) {
           balancedCards.push(card);
           rarityCounts[rarity]++;
         }
@@ -203,7 +262,7 @@ const DraftInterface: React.FC = () => {
 
     // Second pass: fill remaining slots with any cards
     sortedCards.forEach(card => {
-      if (balancedCards.length >= 5) return;
+      if (balancedCards.length >= regularPickSize) return;
       
       if (!balancedCards.some(c => c.id === card.id)) {
         balancedCards.push(card);
@@ -211,19 +270,23 @@ const DraftInterface: React.FC = () => {
       }
     });
 
-    // Ensure we have exactly 5 cards
-    return balancedCards.slice(0, 5);
-  }, [calculateRarityBoosts]);
+    // Shuffle the final selection
+    return balancedCards.sort(() => Math.random() - 0.5);
+  }, [calculateRarityBoosts, state.tribalSynergies, state.deck]);
 
-  // Modified fetchNextPick to use the cached pool
+  // Modified fetchNextPick to check for tribal synergies
   const fetchNextPick = useCallback(() => {
     if (!state.isCommanderSelected || state.draftComplete) return;
 
     setLoading(true);
     try {
-      // Filter out cards that are already in the deck
+      // Check for new tribal synergies
+      checkForTribalSynergies();
+
+      // Filter out cards that are already in the deck or have ever been presented as picks
       const availableCards = state.availableCards.filter(
-        card => !state.deck.some(deckCard => deckCard.id === card.id)
+        card => !state.deck.some(deckCard => deckCard.id === card.id) &&
+                !state.presentedCards.includes(card.id)
       );
 
       // Balance and select cards from the filtered pool
@@ -235,7 +298,7 @@ const DraftInterface: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [state.isCommanderSelected, state.draftComplete, state.availableCards, state.deck, dispatch, balanceCardPool]);
+  }, [state.isCommanderSelected, state.draftComplete, state.availableCards, state.deck, state.presentedCards, dispatch, balanceCardPool, checkForTribalSynergies]);
 
   useEffect(() => {
     if (currentPick.length === 0) {
