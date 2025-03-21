@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/edh-draft/static/css/main.abe399ff.css",
-    "main.js": "/edh-draft/static/js/main.e657821c.js",
+    "main.js": "/edh-draft/static/js/main.c99389de.js",
     "index.html": "/edh-draft/index.html",
     "main.abe399ff.css.map": "/edh-draft/static/css/main.abe399ff.css.map",
-    "main.e657821c.js.map": "/edh-draft/static/js/main.e657821c.js.map"
+    "main.c99389de.js.map": "/edh-draft/static/js/main.c99389de.js.map"
   },
   "entrypoints": [
     "static/css/main.abe399ff.css",
-    "static/js/main.e657821c.js"
+    "static/js/main.c99389de.js"
   ]
 }
