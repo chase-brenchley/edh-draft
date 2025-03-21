@@ -118,7 +118,7 @@ const DeckStats: React.FC = () => {
 
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-md border-t border-white/20"
+      className="bg-white/10 backdrop-blur-md border-t border-white/20"
       initial={false}
       animate={{ height: isExpanded ? "auto" : "40px" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}

@@ -46,8 +46,11 @@ const AppContent = () => {
             <DraftInterface />
             <DeckExport />
           </motion.div>
+          <div className="h-[40px]" />
         </main>
-        <DeckStats />
+        <div className="fixed bottom-0 left-0 right-0">
+          <DeckStats />
+        </div>
       </div>
     </div>
   );
