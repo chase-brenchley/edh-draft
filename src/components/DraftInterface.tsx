@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useDraft } from '../context/DraftContext';
 import { Card } from '../types/card';
@@ -275,13 +275,13 @@ const DraftInterface: React.FC = () => {
   }, [calculateRarityBoosts, state.tribalSynergies, state.deck]);
 
   // Modified fetchNextPick to check for tribal synergies
-  const fetchNextPick = useCallback(() => {
+  const fetchNextPick = useCallback(async () => {
     if (!state.isCommanderSelected || state.draftComplete) return;
 
     setLoading(true);
     try {
       // Check for new tribal synergies
-      checkForTribalSynergies();
+      await checkForTribalSynergies();
 
       // Filter out cards that are already in the deck or have ever been presented as picks
       const availableCards = state.availableCards.filter(
@@ -291,8 +291,10 @@ const DraftInterface: React.FC = () => {
 
       // Balance and select cards from the filtered pool
       const balancedCards = balanceCardPool(availableCards);
-      setCurrentPick(balancedCards);
-      dispatch({ type: 'SET_CURRENT_PICK', payload: balancedCards });
+      if (balancedCards.length > 0) {
+        setCurrentPick(balancedCards);
+        dispatch({ type: 'SET_CURRENT_PICK', payload: balancedCards });
+      }
     } catch (error) {
       console.error('Error selecting next pick:', error);
     } finally {
@@ -302,8 +304,8 @@ const DraftInterface: React.FC = () => {
 
   useEffect(() => {
     if (currentPick.length === 0) {
-      fetchNextPick();
-    }
+            fetchNextPick();
+          }
   }, [currentPick.length, fetchNextPick]);
 
   const handleCardSelect = (card: Card) => {
