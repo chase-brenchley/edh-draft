@@ -158,14 +158,14 @@ const DeckStats: React.FC = () => {
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="max-w-7xl mx-auto px-4 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="max-h-[60vh] overflow-y-auto pb-4">
+              <div className="space-y-6">
                 {/* Deck Overview Card */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
