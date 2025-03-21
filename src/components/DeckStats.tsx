@@ -6,27 +6,41 @@ const DeckStats: React.FC = () => {
   const { state } = useDraft();
   const { deck } = state;
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const shouldAutoCollapseRef = useRef(true);
   const [collapseTimeout, setCollapseTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Handle mouse enter/leave
   const handleMouseEnter = () => {
     setIsExpanded(true);
-    shouldAutoCollapseRef.current = false;
-    if (collapseTimeout) {
-      clearTimeout(collapseTimeout);
+    if (!isPinned) {
+      shouldAutoCollapseRef.current = false;
+      if (collapseTimeout) {
+        clearTimeout(collapseTimeout);
+      }
     }
   };
 
   const handleMouseLeave = () => {
-    shouldAutoCollapseRef.current = true;
-    // Start a timer to collapse after 2 seconds
-    const timeout = setTimeout(() => {
-      if (shouldAutoCollapseRef.current) {
-        setIsExpanded(false);
-      }
-    }, 2000);
-    setCollapseTimeout(timeout);
+    if (!isPinned) {
+      shouldAutoCollapseRef.current = true;
+      // Start a timer to collapse after 2 seconds
+      const timeout = setTimeout(() => {
+        if (shouldAutoCollapseRef.current) {
+          setIsExpanded(false);
+        }
+      }, 2000);
+      setCollapseTimeout(timeout);
+    }
+  };
+
+  // Handle pin toggle
+  const handlePinToggle = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering mouse enter/leave
+    setIsPinned(!isPinned);
+    if (!isPinned) {
+      setIsExpanded(true);
+    }
   };
 
   // Clean up timeout on unmount
@@ -127,13 +141,17 @@ const DeckStats: React.FC = () => {
           <span className="text-white/70">Cards: {deck.length}/100</span>
           <span className="text-white/70">Avg CMC: {averageCMC.toFixed(2)}</span>
         </div>
-        <motion.div
-          animate={{ rotate: isExpanded ? 180 : 0 }}
+        <motion.button
+          onClick={handlePinToggle}
+          animate={{ rotate: isPinned ? 0 : 45 }}
           transition={{ duration: 0.3 }}
-          className="text-white/70 relative"
+          className="relative px-2 py-1 rounded-full text-white/70 hover:text-white/90 transition-colors hover:bg-white/10"
+          title={isPinned ? "Unpin stats" : "Pin stats open"}
         >
-          ▼
-        </motion.div>
+          <span className="inline-block">
+            📌
+          </span>
+        </motion.button>
       </div>
 
       {/* Expandable Content */}
