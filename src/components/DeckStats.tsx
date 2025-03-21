@@ -268,7 +268,6 @@ const DeckStats: React.FC = () => {
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {Object.entries(subtypeDistribution)
                       .sort(([, a], [, b]) => b - a)
-                      .filter(([, count]) => count > 1)
                       .map(([subtype, count]) => (
                         <div key={subtype} className="flex items-center space-x-2">
                           <span className="text-white/70 w-20">{subtype}</span>
