@@ -35,7 +35,7 @@ const AppContent = () => {
         <h1 className="text-3xl font-bold text-center text-white/90">EDH Draft</h1>
       </header>
       <div className="flex relative">
-        <main className="flex-1 container mx-auto px-4 py-8 pr-72">
+        <main className="flex-1 container mx-auto px-4 py-8 md:pr-72 flex flex-col">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
