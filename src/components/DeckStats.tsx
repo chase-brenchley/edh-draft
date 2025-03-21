@@ -165,13 +165,13 @@ const DeckStats: React.FC = () => {
             className="overflow-hidden"
           >
             <div className="max-h-[60vh] overflow-y-auto pb-4">
-              <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-6 px-6 pt-6">
                 {/* Deck Overview Card */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isExpanded ? 1 : 0, y: isExpanded ? 0 : 20 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 md:col-span-1"
                 >
                   <h3 className="text-base font-bold mb-3 text-blue-400">Overview</h3>
                   <div className="space-y-2">
@@ -199,7 +199,7 @@ const DeckStats: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isExpanded ? 1 : 0, y: isExpanded ? 0 : 20 }}
                   transition={{ duration: 0.3, delay: 0.2 }}
-                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 md:col-span-1"
                 >
                   <h3 className="text-base font-bold mb-3 text-green-400">Mana Curve</h3>
                   <div className="space-y-2">
@@ -225,7 +225,7 @@ const DeckStats: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isExpanded ? 1 : 0, y: isExpanded ? 0 : 20 }}
                   transition={{ duration: 0.3, delay: 0.3 }}
-                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 md:col-span-1"
                 >
                   <h3 className="text-base font-bold mb-3 text-purple-400">Colors</h3>
                   <div className="space-y-2">
@@ -254,7 +254,7 @@ const DeckStats: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isExpanded ? 1 : 0, y: isExpanded ? 0 : 20 }}
                   transition={{ duration: 0.3, delay: 0.4 }}
-                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 md:col-span-1"
                 >
                   <h3 className="text-base font-bold mb-3 text-yellow-400">Card Types</h3>
                   <div className="space-y-2">
@@ -280,7 +280,7 @@ const DeckStats: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isExpanded ? 1 : 0, y: isExpanded ? 0 : 20 }}
                   transition={{ duration: 0.3, delay: 0.5 }}
-                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 md:col-span-1"
                 >
                   <h3 className="text-base font-bold mb-3 text-orange-400">Subtypes</h3>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
@@ -306,7 +306,7 @@ const DeckStats: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: isExpanded ? 1 : 0, y: isExpanded ? 0 : 20 }}
                   transition={{ duration: 0.3, delay: 0.6 }}
-                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20"
+                  className="bg-white/10 backdrop-blur-md rounded-lg p-4 shadow-lg border border-white/20 md:col-span-1"
                 >
                   <h3 className="text-base font-bold mb-3 text-pink-400">Rarity</h3>
                   <div className="space-y-2">
